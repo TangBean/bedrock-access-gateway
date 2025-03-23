@@ -241,8 +241,10 @@ class BedrockModel(BaseChatModel):
             if message.role != "system":
                 # ignore system messages here
                 continue
-            assert isinstance(message.content, str)
-            system_prompts.append({"text": message.content})
+            elif isinstance(message.content, str):
+                system_prompts.append({"text": message.content})
+            elif isinstance(message.content, TextContent):
+                system_prompts.append({"text": message.content.text})
 
         return system_prompts
 
@@ -379,6 +381,12 @@ class BedrockModel(BaseChatModel):
         """
         messages = self._parse_messages(chat_request)
         system_prompts = self._parse_system_prompts(chat_request)
+        if chat_request.model and chat_request.model == "us.anthropic.claude-3-7-sonnet-20250219-v1:0":
+            chat_request.max_tokens = 65536
+            chat_request.reasoning_effort = "high"
+            chat_request.temperature = 1
+        elif chat_request.model and chat_request.model == "us.deepseek.r1-v1:0":
+            chat_request.max_tokens = 32768
 
         # Base inference parameters.
         inference_config = {
@@ -469,6 +477,8 @@ class BedrockModel(BaseChatModel):
             for c in content:
                 if "reasoningContent" in c:
                     message.reasoning_content = c["reasoningContent"]["reasoningText"].get("text", "")
+                elif "thinking" in c:
+                    message.reasoning_content = c["thinking"]
                 elif "text" in c:
                     message.content = c["text"]
                 else:
@@ -544,6 +554,10 @@ class BedrockModel(BaseChatModel):
                     message = ChatResponseMessage(
                         reasoning_content=delta["reasoningContent"]["text"],
                     )
+            elif "thinking" in delta:
+                message = ChatResponseMessage(
+                    content=delta["thinking"],
+                )
             else:
                 # tool use
                 index = chunk["contentBlockDelta"]["contentBlockIndex"] - 1

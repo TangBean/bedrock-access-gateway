@@ -28,7 +28,7 @@ build_and_push_images() {
         done
     else
         # Build single architecture Docker image
-        docker buildx build --platform linux/${ARCHS[0]} -t $IMAGE_NAME:$TAG -f $DOCKERFILE_PATH --load ../src/
+        docker buildx build --platform linux/${ARCHS[1]} -t $IMAGE_NAME:$TAG -f $DOCKERFILE_PATH --load ../src/
     fi
 
     # Push Docker image to ECR for each architecture in each AWS region
@@ -74,4 +74,4 @@ build_and_push_images() {
 }
 
 build_and_push_images "bedrock-proxy-api" "$TAG" "false" "../src/Dockerfile"
-build_and_push_images "bedrock-proxy-api-ecs" "$TAG"
+build_and_push_images "bedrock-proxy-api-ecs" "$TAG" "false"

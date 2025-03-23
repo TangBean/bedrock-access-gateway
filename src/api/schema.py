@@ -41,14 +41,14 @@ class ImageUrl(BaseModel):
 
 
 class ImageContent(BaseModel):
-    type: Literal["image_url"] = "image"
+    type: Literal["image_url"] = "image_url"
     image_url: ImageUrl
 
 
 class SystemMessage(BaseModel):
     name: str | None = None
     role: Literal["system"] = "system"
-    content: str
+    content: str | list[TextContent | ImageContent]
 
 
 class UserMessage(BaseModel):
@@ -95,7 +95,7 @@ class ChatRequest(BaseModel):
     temperature: float | None = Field(default=1.0, le=2.0, ge=0.0)
     top_p: float | None = Field(default=1.0, le=1.0, ge=0.0)
     user: str | None = None  # Not used
-    max_tokens: int | None = 2048
+    max_tokens: int | None = 4096
     max_completion_tokens: int | None = None
     reasoning_effort: Literal["low", "medium", "high"] | None = None
     n: int | None = 1  # Not used

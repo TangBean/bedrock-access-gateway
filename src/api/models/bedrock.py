@@ -72,6 +72,13 @@ SUPPORTED_BEDROCK_EMBEDDING_MODELS = {
     # "amazon.titan-embed-image-v1": "Titan Multimodal Embeddings G1"
 }
 
+# These initial bedrock models are mock data just for passing the custom model name validation
+INITIAL_BEDROCK_MODELS = {
+    "us.anthropic.claude-3-7-sonnet-20250219-v1:0-R1": {},
+    "us.anthropic.claude-3-7-sonnet-20250219-v1:0-R2": {},
+    "us.anthropic.claude-3-7-sonnet-20250219-v1:0-R3": {},
+}
+
 ENCODER = tiktoken.get_encoding("cl100k_base")
 
 
@@ -82,7 +89,7 @@ def list_bedrock_models() -> dict:
         - ON_DEMAND models.
         - Cross-Region Inference Profiles (if enabled via Env)
     """
-    model_list = {}
+    model_list = INITIAL_BEDROCK_MODELS
     try:
         profile_list = []
         if ENABLE_CROSS_REGION_INFERENCE:
@@ -381,10 +388,23 @@ class BedrockModel(BaseChatModel):
         """
         messages = self._parse_messages(chat_request)
         system_prompts = self._parse_system_prompts(chat_request)
-        if chat_request.model and chat_request.model == "us.anthropic.claude-3-7-sonnet-20250219-v1:0":
+        if chat_request.model and chat_request.model == "us.anthropic.claude-3-7-sonnet-20250219-v1:0-R1":
+            chat_request.model = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
             chat_request.max_tokens = 65536
             chat_request.reasoning_effort = "high"
             chat_request.temperature = 1
+        elif chat_request.model and chat_request.model == "us.anthropic.claude-3-7-sonnet-20250219-v1:0-R2":
+            chat_request.model = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+            chat_request.max_tokens = 65536
+            chat_request.reasoning_effort = "medium"
+            chat_request.temperature = 1
+        elif chat_request.model and chat_request.model == "us.anthropic.claude-3-7-sonnet-20250219-v1:0-R3":
+            chat_request.model = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+            chat_request.max_tokens = 65536
+            chat_request.reasoning_effort = "low"
+            chat_request.temperature = 1
+        elif chat_request.model and chat_request.model == "us.anthropic.claude-3-7-sonnet-20250219-v1:0":
+            chat_request.max_tokens = 65536
         elif chat_request.model and chat_request.model == "us.deepseek.r1-v1:0":
             chat_request.max_tokens = 32768
 

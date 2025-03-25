@@ -386,8 +386,6 @@ class BedrockModel(BaseChatModel):
 
         Ref: https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html
         """
-        messages = self._parse_messages(chat_request)
-        system_prompts = self._parse_system_prompts(chat_request)
         if chat_request.model and chat_request.model == "us.anthropic.claude-3-7-sonnet-20250219-v1:0-R1":
             chat_request.model = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
             chat_request.max_tokens = 65536
@@ -407,6 +405,9 @@ class BedrockModel(BaseChatModel):
             chat_request.max_tokens = 65536
         elif chat_request.model and chat_request.model == "us.deepseek.r1-v1:0":
             chat_request.max_tokens = 32768
+            
+        messages = self._parse_messages(chat_request)
+        system_prompts = self._parse_system_prompts(chat_request)
 
         # Base inference parameters.
         inference_config = {
